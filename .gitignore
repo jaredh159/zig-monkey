@@ -1,5 +1,7 @@
+zig-out/
 .DS_Store
 *.swp
 node_modules/
 .env
 .zig-cache/
+zig-out/

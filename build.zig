@@ -101,6 +101,13 @@ pub fn build(b: *std.Build) void {
 
     const run_lib_unit_tests = b.addRunArtifact(lib_unit_tests);
 
+    if (b.lazyDependency("ohsnap", .{
+        .target = target,
+        .optimize = optimize,
+    })) |ohsnap_dep| {
+        lib_unit_tests.root_module.addImport("ohsnap", ohsnap_dep.module("ohsnap"));
+    }
+
     const exe_unit_tests = b.addTest(.{
         .root_module = exe_mod,
     });

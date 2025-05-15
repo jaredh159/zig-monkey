@@ -1,6 +1,5 @@
 const Token = @import("token.zig").Token;
 const print = @import("std").debug.print;
-const t = @import("std").testing;
 
 const Lexer = struct {
     input: []const u8,
@@ -13,8 +12,6 @@ const Lexer = struct {
     }
 
     fn next_token(self: *Lexer) Token {
-        // print("yolo: {u}", self.ch);
-        // _ = self;
         self.read_char();
         return Token{ .type = .eof, .lexeme = "" };
     }
@@ -26,9 +23,13 @@ const Lexer = struct {
     }
 };
 
-// try https://github.com/mnemnion/ohsnap
+// tests
+
+const t = @import("std").testing;
+const OhSnap = @import("ohsnap");
 
 test "lexer next token" {
+    const oh = OhSnap{};
     const input = "=+(){},;";
     var lexer = Lexer.init(input);
     const tests = [_]Token{
@@ -42,8 +43,13 @@ test "lexer next token" {
         Token{ .type = .semicolon, .lexeme = ";" },
         Token{ .type = .eof, .lexeme = "" },
     };
-    // for (story) |scene| {
     for (tests) |expected| {
-        try t.expectEqual(lexer.next_token(), expected);
+        _ = expected;
+        const actual = lexer.next_token();
+        try oh.snap(
+            @src(),
+            \\
+            ,
+        ).expectEqual(actual);
     }
 }
