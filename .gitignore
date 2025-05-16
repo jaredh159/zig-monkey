@@ -4,4 +4,3 @@ zig-out/
 node_modules/
 .env
 .zig-cache/
-zig-out/
