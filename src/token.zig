@@ -17,5 +17,18 @@ pub const Token = struct {
         rbrace,
         function,
         let,
+        lt,
+        gt,
+        bang,
+        asterisk,
+        slash,
+        minus,
+        true,
+        false,
+        iff,
+        els,
+        ret,
+        eq,
+        neq,
     };
 };

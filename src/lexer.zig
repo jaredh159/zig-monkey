@@ -18,14 +18,30 @@ const Lexer = struct {
         self.skip_whitespace();
         var tok: Token = undefined;
         switch (self.ch) {
-            '=' => tok = Token{ .type = .assign, .lexeme = "=" },
             ';' => tok = Token{ .type = .semicolon, .lexeme = ";" },
             '(' => tok = Token{ .type = .lparen, .lexeme = "(" },
             ')' => tok = Token{ .type = .rparen, .lexeme = ")" },
             ',' => tok = Token{ .type = .comma, .lexeme = "," },
             '+' => tok = Token{ .type = .plus, .lexeme = "+" },
             '{' => tok = Token{ .type = .lbrace, .lexeme = "{" },
+            '-' => tok = Token{ .type = .minus, .lexeme = "-" },
+            '/' => tok = Token{ .type = .slash, .lexeme = "/" },
+            '*' => tok = Token{ .type = .asterisk, .lexeme = "*" },
+            '<' => tok = Token{ .type = .lt, .lexeme = "<" },
+            '>' => tok = Token{ .type = .gt, .lexeme = ">" },
             '}' => tok = Token{ .type = .rbrace, .lexeme = "}" },
+            '=' => if (self.peek_char() == '=') {
+                self.read_char();
+                tok = Token{ .type = .eq, .lexeme = "==" };
+            } else {
+                tok = Token{ .type = .assign, .lexeme = "=" };
+            },
+            '!' => if (self.peek_char() == '=') {
+                self.read_char();
+                tok = Token{ .type = .neq, .lexeme = "!=" };
+            } else {
+                tok = Token{ .type = .bang, .lexeme = "!" };
+            },
             0 => return Token{ .type = .eof, .lexeme = "" },
             else => |c| if (is_digit(c)) {
                 return self.read_num();
@@ -73,6 +89,14 @@ const Lexer = struct {
         self.read_pos += 1;
     }
 
+    fn peek_char(self: *Lexer) u8 {
+        if (self.read_pos >= self.input.len) {
+            return 0;
+        } else {
+            return self.input[self.read_pos];
+        }
+    }
+
     fn skip_whitespace(self: *Lexer) void {
         while (self.ch == ' ' or self.ch == '\t' or self.ch == '\n' or self.ch == '\r') {
             self.read_char();
@@ -95,6 +119,16 @@ fn lookup_ident(ident: []const u8) Token.Type {
         return .function;
     } else if (std.mem.eql(u8, ident, "let")) {
         return .let;
+    } else if (std.mem.eql(u8, ident, "if")) {
+        return .iff;
+    } else if (std.mem.eql(u8, ident, "else")) {
+        return .els;
+    } else if (std.mem.eql(u8, ident, "return")) {
+        return .ret;
+    } else if (std.mem.eql(u8, ident, "true")) {
+        return .true;
+    } else if (std.mem.eql(u8, ident, "false")) {
+        return .false;
     } else {
         return .ident;
     }
@@ -143,6 +177,10 @@ test "realistic tokens" {
         \\};
         \\
         \\let result = add(five, ten);
+        \\!-/*5;
+        \\5 < 10 > 5;
+        \\ if return true false else
+        \\ == !=
     ;
     var lexer = Lexer.init(monkey_code);
     const tests = [_]Token{
@@ -182,6 +220,25 @@ test "realistic tokens" {
         Token{ .type = .ident, .lexeme = "ten" },
         Token{ .type = .rparen, .lexeme = ")" },
         Token{ .type = .semicolon, .lexeme = ";" },
+        Token{ .type = .bang, .lexeme = "!" },
+        Token{ .type = .minus, .lexeme = "-" },
+        Token{ .type = .slash, .lexeme = "/" },
+        Token{ .type = .asterisk, .lexeme = "*" },
+        Token{ .type = .int, .lexeme = "5" },
+        Token{ .type = .semicolon, .lexeme = ";" },
+        Token{ .type = .int, .lexeme = "5" },
+        Token{ .type = .lt, .lexeme = "<" },
+        Token{ .type = .int, .lexeme = "10" },
+        Token{ .type = .gt, .lexeme = ">" },
+        Token{ .type = .int, .lexeme = "5" },
+        Token{ .type = .semicolon, .lexeme = ";" },
+        Token{ .type = .iff, .lexeme = "if" },
+        Token{ .type = .ret, .lexeme = "return" },
+        Token{ .type = .true, .lexeme = "true" },
+        Token{ .type = .false, .lexeme = "false" },
+        Token{ .type = .els, .lexeme = "else" },
+        Token{ .type = .eq, .lexeme = "==" },
+        Token{ .type = .neq, .lexeme = "!=" },
         Token{ .type = .eof, .lexeme = "" },
     };
     for (tests) |expected| {
