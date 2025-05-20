@@ -1,0 +1,3 @@
+- duck typing feels magical and implicit, the way to format a type
+- multi-line strings love/hate, speed vs beauty
+- lsp not great

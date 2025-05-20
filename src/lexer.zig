@@ -2,19 +2,19 @@ const Token = @import("token.zig").Token;
 const print = @import("std").debug.print;
 const std = @import("std");
 
-const Lexer = struct {
+pub const Lexer = struct {
     input: []const u8,
     position: usize = 0,
     read_pos: usize = 0,
     ch: u8 = 0,
 
-    fn init(input: []const u8) Lexer {
+    pub fn init(input: []const u8) Lexer {
         var lexer = Lexer{ .input = input };
         lexer.read_char();
         return lexer;
     }
 
-    fn next_token(self: *Lexer) Token {
+    pub fn next_token(self: *Lexer) Token {
         self.skip_whitespace();
         var tok: Token = undefined;
         switch (self.ch) {
